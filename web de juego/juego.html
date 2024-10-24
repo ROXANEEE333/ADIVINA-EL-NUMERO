@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego de Adivinanza</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <div class="game-container">
+        <h1>Juego de Adivinanza</h1>
+        <p>Adivina el número entre 1 y 100</p>
+        
+        <input type="number" id="guess" min="1" max="100" placeholder="Tu número">
+        <button id="guess-btn" onclick="adivinar()">Adivinar</button>
+        
+        <p id="resultado"></p>
+        <p id="intentos">Intentos restantes: <span id="restantes">10</span></p>
+        <button id="reset-btn" onclick="reiniciar()">Reiniciar Juego</button>
+    </div>
+
+    <div id="particles-container"></div>
+    
+    <audio id="error-sound" src="sound.mp3" preload="auto"></audio>
+    
+    <script src="animations.js"></script>
+    <script src="particles.js"></script>
+    <script>
+        let numeroSecreto = Math.floor(Math.random() * 100) + 1;
+        let intentosRestantes = 10;
+
+        function adivinar() {
+            let adivinanza = document.getElementById('guess').value;
+            let resultado = document.getElementById('resultado');
+            let restantes = document.getElementById('restantes');
+            let container = document.querySelector('.game-container');
+            let errorSound = document.getElementById('error-sound');
+
+            if (intentosRestantes > 0) {
+                if (adivinanza == numeroSecreto) {
+                    resultado.textContent = '¡Felicidades! Has adivinado el número.';
+                    resultado.classList.add('success');
+                    container.classList.add('win-animation');
+                    // Disparar partículas de victoria
+                    launchParticles();
+                } else if (adivinanza < numeroSecreto) {
+                    resultado.textContent = 'El número es mayor. ¡Intenta de nuevo!';
+                    resultado.classList.remove('success');
+                    container.classList.add('shake-animation');
+                    errorSound.play(); // Reproduce el sonido de error
+                } else {
+                    resultado.textContent = 'El número es menor. ¡Intenta de nuevo!';
+                    resultado.classList.remove('success');
+                    container.classList.add('shake-animation');
+                    errorSound.play(); // Reproduce el sonido de error
+                }
+                intentosRestantes--;
+                restantes.textContent = intentosRestantes;
+
+                if (intentosRestantes === 0 && adivinanza != numeroSecreto) {
+                    resultado.textContent = '¡Se te acabaron los intentos! El número era ' + numeroSecreto + '.';
+                    document.getElementById('guess-btn').disabled = true;
+                    container.classList.add('lose-animation');
+                }
+
+                setTimeout(() => container.classList.remove('shake-animation'), 500);
+            }
+        }
+
+        function reiniciar() {
+            numeroSecreto = Math.floor(Math.random() * 100) + 1;
+            intentosRestantes = 10;
+            document.getElementById('restantes').textContent = intentosRestantes;
+            document.getElementById('resultado').textContent = '';
+            document.getElementById('guess').value = '';
+            document.getElementById('guess-btn').disabled = false;
+            let container = document.querySelector('.game-container');
+            container.classList.remove('win-animation', 'lose-animation');
+        }
+    </script>
+
+</body>
+</html>
